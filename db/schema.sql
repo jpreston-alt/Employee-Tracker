@@ -8,7 +8,6 @@ CREATE TABLE employee (
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     role_id VARCHAR(50),
-    manager_id VARCHAR(50),
     PRIMARY KEY (id)
 );
 

@@ -16,11 +16,11 @@ INSERT INTO role (title, salary, department_id) VALUES
 ("UI/UX Designer", 85000, 4),
 ("Design Department Manager", 115000, 4);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
-("Helen", "Smith", 4, null),
-("Sam", "Wesley", 2, 1),
-("Adam", "Jones", 8, null),
-("Serena", "Browne", 7, 3);
+INSERT INTO employee (first_name, last_name, role_id) VALUES
+("Helen", "Smith", 4),
+("Sam", "Wesley", 2),
+("Adam", "Jones", 8),
+("Serena", "Browne", 7);
 
 
 
