@@ -4,6 +4,7 @@ const Query = require("./lib/Query");
 const questions = require("./lib/Questions");
 const cTable = require("console.table");
 
+// set variables for query/table instances
 let employeeQuery = Query.employeeQuery;
 let departmentQuery = Query.departmentQuery;
 let roleQuery = Query.roleQuery;
@@ -32,6 +33,15 @@ function init() {
                 case "Add Role":
                     roleQuery.addToTable();
                     break;
+                case "Remove Employee":
+                    employeeQuery.deleteFromTable();
+                    break;
+                case "Remove Department":
+                    departmentQuery.deleteFromTable();
+                    break;
+                case "Remove Role":
+                    roleQuery.deleteFromTable();
+                    break;
                 default:
                     db.end();
             }
@@ -43,6 +53,7 @@ function init() {
 
 init();
 
+// view table method
 QueryClass.prototype.viewTable = function() {
     db.query(
         `Select * FROM ${this.table}`,
@@ -53,6 +64,7 @@ QueryClass.prototype.viewTable = function() {
         });
 };
 
+// add to table method
 QueryClass.prototype.addToTable = function() {
     this.askQuestions().then(data => {
         this.params = Object.values(data);
@@ -72,6 +84,19 @@ QueryClass.prototype.addToTable = function() {
 
 // };
 
-// deleteFromTable() {
+// method for removing instance from table
+QueryClass.prototype.deleteFromTable = function () {
+    let type = this.table;
+    inquirer.prompt(this.deleteQuestion).then(data => {
+        let deleteVal = Object.values(data);
+        db.query(
+            `DELETE FROM ${this.table} WHERE ${this.columns[0]}=?;`,
+            [deleteVal],
+            function (err, res) {
+                if (err) throw err;
+                console.table(`${type} deleted`);
+                init();
+        });
+    });
+};
 
-// };
