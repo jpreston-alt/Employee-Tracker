@@ -1,54 +1,57 @@
 const inquirer = require("inquirer");
-const mysql = require("mysql");
-const cTable = require("console.table");
-const questions = require("./lib/Questions")
-require("dotenv").config();
-
-const connection = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: process.env.DB_PW,
-    database: "employeeTracker_db"
-});
-
-connection.connect(err => {
-    if (err) throw err;
-    console.log(`Connected as id ${connection.threadId}...`);
-    // init();
-});
+const db = require("./server_db");
+const Query = require("./lib/Query");
+const questions = require("./lib/Questions");
 
 
-module.exports = connection;
+function init() {
+    inquirer
+        .prompt(questions.toDoQuestion)
+        .then(data => {
+            switch (data.toDoType) {
+                case "View all Employees":
+                    break;
+                default:
+                    db.end();
+            }
 
-// function init() {
-//     inquirer
-//         .prompt(questions.toDoQuestion)
-//         .then(data => {
-//             switch (data.toDoType) {
-//                 case "View all Employees":
-//                     viewAll();
-//                     break;
-//                 default:
-//                     connection.end();
-//             }
+        })
+        .catch(err => {
+            if (err) throw err;
+        });
+};
 
+init();
 
-//         })
-//         .catch(err => {
+// askQuestions() {
+//     return inquirer.prompt(this.questions);
+// };
+
+// addToTable() {
+//     db.query(
+//         `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+//             VALUES (?);`, [this.params],
+//         function (err, res) {
 //             if (err) throw err;
+//             console.table(res);
+//             // init();
 //         });
 // };
 
-// function viewAll() {
-//     connection.query("Select * FROM employee", (err, res) => {
-//         if (err) throw err;
-//         console.table(res);
-//         init();
-//     })
+function viewTable() {
+    db.query(
+        `Select * FROM ${this.table}`,
+        function (err, res) {
+            if (err) throw err;
+            console.table(res);
+            index.init();
+        });
+};
+
+// updateTable() {
+
 // };
 
+// deleteFromTable() {
 
-
-
-
+// };
