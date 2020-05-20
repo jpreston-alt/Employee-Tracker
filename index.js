@@ -15,31 +15,38 @@ const connection = mysql.createConnection({
 connection.connect(err => {
     if (err) throw err;
     console.log(`Connected as id ${connection.threadId}...`);
-    init();
+    // init();
 });
 
-function init() {
-    inquirer
-        .prompt(questions.toDoQuestion)
-        .then(data => {
-            if (data.toDoType === "View all Employees") {
-                viewAll();
-            } else {
-                connection.end();
-            }
-        })
-        .catch(err => {
-            if (err) throw err;
-        });
-};
 
-function viewAll() {
-    connection.query("Select * FROM employee", (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        init();
-    })
-};
+module.exports = connection;
+
+// function init() {
+//     inquirer
+//         .prompt(questions.toDoQuestion)
+//         .then(data => {
+//             switch (data.toDoType) {
+//                 case "View all Employees":
+//                     viewAll();
+//                     break;
+//                 default:
+//                     connection.end();
+//             }
+
+
+//         })
+//         .catch(err => {
+//             if (err) throw err;
+//         });
+// };
+
+// function viewAll() {
+//     connection.query("Select * FROM employee", (err, res) => {
+//         if (err) throw err;
+//         console.table(res);
+//         init();
+//     })
+// };
 
 
 
