@@ -55,6 +55,7 @@ init();
 
 // view table method
 QueryClass.prototype.viewTable = function() {
+    this.findColVals();
     db.query(
         `Select * FROM ${this.table}`,
         function (err, res) {
@@ -66,6 +67,7 @@ QueryClass.prototype.viewTable = function() {
 
 // add to table method
 QueryClass.prototype.addToTable = function() {
+    this.findColVals();
     this.askQuestions().then(data => {
         this.params = Object.values(data);
         let table = this.table;
@@ -86,15 +88,26 @@ QueryClass.prototype.addToTable = function() {
 
 // method for removing instance from table
 QueryClass.prototype.deleteFromTable = function () {
+    this.findColVals();
+    let choices = this.deleteQuestion.choices;
     let type = this.table;
+
     inquirer.prompt(this.deleteQuestion).then(data => {
         let deleteVal = Object.values(data);
+
         db.query(
             `DELETE FROM ${this.table} WHERE ${this.columns[0]}=?;`,
             [deleteVal],
             function (err, res) {
                 if (err) throw err;
                 console.table(`${type} deleted`);
+
+                for (var i = 0; i < choices.length; i++) {
+                    if (choices[i] == deleteVal) {
+                        choices.splice(i, 1);
+                    };
+                };
+
                 init();
         });
     });
