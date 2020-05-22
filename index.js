@@ -105,6 +105,7 @@ QueryClass.prototype.deleteFromTable = function () {
 };
 
 employeeQuery.updateRole = function() {
+    this.findColVals();
     inquirer.prompt(questions.updateEmpQ).then(data => {
         const { updateEmployee, updateRole } = data;
         db.query(`SELECT * FROM role`, function (err, res) {
@@ -123,20 +124,13 @@ employeeQuery.updateRole = function() {
 };
 
 employeeQuery.updateManager = function () {
+    this.findColVals();
     inquirer.prompt(questions.updateEmpManager).then(data => {
         const { updateEmpName, updateEmpManager } = data;
-        db.query(`SELECT * FROM manager`, function (err, res) {
+        db.query(`UPDATE employee SET manager="${updateEmpManager}" WHERE first_name="${updateEmpName}";`, function (err, res) {
             if (err) throw err;
-            for (var i = 0; i < res.length; i++) {
-                console.log(updateEmpManager, res[i].name)
-                if (updateEmpManager === res[i].name) {
-                    db.query(`UPDATE employee SET manager_id=${res[i].id} WHERE first_name="${updateEmpName}";`, function (err, res) {
-                        if (err) throw err;
-                        console.log(`\nEmployee Manager Updated!\n`)
-                        init();
-                    });
-                };
-            };
+            console.log(`\nEmployee Manager Updated!\n`)
+            init();
         });
     });
 };
@@ -168,22 +162,14 @@ QueryClass.prototype.addToTable = function () {
                 };
             };
 
-            db.query(`SELECT * FROM manager`, function(err, res) {
-                if (err) throw err;
-                if (table === "employee") {
-                    for (var i = 0; i < res.length; i++) {
-                        if (Object.values(data)[3] == res[i].name) {
-                            params.push(res[i].id);
-                        };
-                    };
-                };
+            if (table === "employee") {params.push(Object.values(data)[3])};
 
-                db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
-                    if (err) throw err;
-                    console.log(`\nNew ${table} added!\n`);
-                    init();
-                });
+            db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
+                if (err) throw err;
+                console.log(`\nNew ${table} added!\n`);
+                init();
             });
+
         });
     });
 };
@@ -193,13 +179,10 @@ departmentQuery.addToTable = function () {
     this.askQuestions().then(data => {
         let params = Object.values(data);
         let table = this.table;
-        db.query(
-            `INSERT INTO ${this.table} (${this.columns}) VALUES (?);`,
-            [params],
-            function (err, res) {
-                if (err) throw err;
-                console.log(`\nNew ${table} added!\n`);
-                init();
-            });
+        db.query(`INSERT INTO ${this.table} (${this.columns}) VALUES (?);`,[params], function (err, res) {
+            if (err) throw err;
+            console.log(`\nNew ${table} added!\n`);
+            init();
+        });
     });
 };

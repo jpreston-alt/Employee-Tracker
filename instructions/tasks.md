@@ -8,9 +8,13 @@
 * set up inquirer questions class
 * pull questions and queries together in index.js file 
 
-* fix manager to be employees
-* condense update functions to one
+<!-- * fix manager to be employees -->
+<!-- * condense update functions to one -->
+* employee first and last name
+* fix update list from Questions module
+
 * View employee by department
 * View employee by manager
+
 * test
 * README
