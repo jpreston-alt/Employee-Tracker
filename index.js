@@ -139,6 +139,7 @@ QueryClass.prototype.addToTable = function () {
     let table = this.table;
     let columns = this.columns;
     let params = [];
+    let obj = this;
     let otherTable;
 
     if (table === "employee") {
@@ -166,6 +167,7 @@ QueryClass.prototype.addToTable = function () {
 
             db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
                 if (err) throw err;
+                obj.findColVals();
                 console.log(`\nNew ${table} added!\n`);
                 init();
             });
