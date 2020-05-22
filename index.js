@@ -10,6 +10,8 @@ let departmentQuery = Query.departmentQuery;
 let roleQuery = Query.roleQuery;
 let QueryClass = Query.Query;
 
+init();
+
 function init() {
     inquirer.prompt(questions.toDoQuestion).then(data => {
         switch (data.toDoType) {
@@ -55,8 +57,6 @@ function init() {
         });
 };
 
-init();
-
 // view table method
 QueryClass.prototype.viewTable = function() {
     this.findColVals();
@@ -86,20 +86,17 @@ QueryClass.prototype.deleteFromTable = function () {
     inquirer.prompt(this.deleteQuestion).then(data => {
         let deleteVal = Object.values(data);
 
-        db.query(
-            `DELETE FROM ${this.table} WHERE ${this.columns[0]}=?;`,
-            [deleteVal],
-            function (err, res) {
-                if (err) throw err;
-                console.log(`\n${type} deleted!\n`);
+        db.query(`DELETE FROM ${this.table} WHERE ${this.columns[0]}=?;`,[deleteVal], function (err, res) {
+            if (err) throw err;
+            console.log(`\n${type} deleted!\n`);
 
-                for (var i = 0; i < choices.length; i++) {
-                    if (choices[i] == deleteVal) {
-                        choices.splice(i, 1);
-                    };
+            for (var i = 0; i < choices.length; i++) {
+                if (choices[i] == deleteVal) {
+                    choices.splice(i, 1);
                 };
+            };
 
-                init();
+            init();
         });
     });
 };
