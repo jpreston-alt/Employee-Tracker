@@ -43,6 +43,9 @@ function init() {
             case "Update Employee Role":
                 employeeQuery.updateRole();
                 break;
+            case "Update Employee Manager":
+                employeeQuery.updateManager();
+                break;
             default:
                 db.end();
         }
@@ -103,26 +106,38 @@ QueryClass.prototype.deleteFromTable = function () {
 
 employeeQuery.updateRole = function() {
     inquirer.prompt(questions.updateEmpQ).then(data => {
-        console.log(data);
         const { updateEmployee, updateRole } = data;
-        db.query(
-            `SELECT * FROM role`,
-            function (err, res) {
-                if (err) throw err;
-                for (var i = 0; i < res.length; i++) {
-                    if (updateRole === res[i].name) {
-                        db.query(
-                            `UPDATE employee SET role_id=${res[i].id} WHERE first_name="${updateEmployee}";`,
-                            function(err, res) {
-                                if (err) throw err;
-                                console.log(`\nEmployee Updated!\n`)
-                                init();
-                            }
-                        )
-                    }
-                }
-            }
-        )
+        db.query(`SELECT * FROM role`, function (err, res) {
+            if (err) throw err;
+            for (var i = 0; i < res.length; i++) {
+                if (updateRole === res[i].name) {
+                    db.query(`UPDATE employee SET role_id=${res[i].id} WHERE first_name="${updateEmployee}";`, function(err, res) {
+                        if (err) throw err;
+                        console.log(`\nEmployee Role Updated!\n`)
+                        init();
+                    });
+                };
+            };
+        });
+    });
+};
+
+employeeQuery.updateManager = function () {
+    inquirer.prompt(questions.updateEmpManager).then(data => {
+        const { updateEmpName, updateEmpManager } = data;
+        db.query(`SELECT * FROM manager`, function (err, res) {
+            if (err) throw err;
+            for (var i = 0; i < res.length; i++) {
+                console.log(updateEmpManager, res[i].name)
+                if (updateEmpManager === res[i].name) {
+                    db.query(`UPDATE employee SET manager_id=${res[i].id} WHERE first_name="${updateEmpName}";`, function (err, res) {
+                        if (err) throw err;
+                        console.log(`\nEmployee Manager Updated!\n`)
+                        init();
+                    });
+                };
+            };
+        });
     });
 };
 
@@ -144,26 +159,32 @@ QueryClass.prototype.addToTable = function () {
         params.push(Object.values(data)[0]);
         params.push(Object.values(data)[1]);
 
-        db.query(
-            `SELECT * FROM ${otherTable}`,
-            function (err, res) {
-                if (err) throw err;
+        db.query(`SELECT * FROM ${otherTable}`, function (err, res) {
+            if (err) throw err;
 
-                for (var i = 0; i < res.length; i++) {
-                    if (Object.values(data)[2] == res[i].name) {
-                        params.push(res[i].id);
+            for (var i = 0; i < res.length; i++) {
+                if (Object.values(data)[2] == res[i].name) {
+                    params.push(res[i].id);
+                };
+            };
+
+            db.query(`SELECT * FROM manager`, function(err, res) {
+                if (err) throw err;
+                if (table === "employee") {
+                    for (var i = 0; i < res.length; i++) {
+                        if (Object.values(data)[3] == res[i].name) {
+                            params.push(res[i].id);
+                        };
                     };
                 };
 
-                db.query(
-                    `INSERT INTO ${table} (${columns}) VALUES (?);`,
-                    [params],
-                    function (err, res) {
-                        if (err) throw err;
-                        console.log(`\nNew ${table} added!\n`);
-                        init();
-                    });
+                db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
+                    if (err) throw err;
+                    console.log(`\nNew ${table} added!\n`);
+                    init();
+                });
             });
+        });
     });
 };
 
