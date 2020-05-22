@@ -7,3 +7,10 @@
 * set up SQL queries in their own class
 * set up inquirer questions class
 * pull questions and queries together in index.js file 
+
+* fix manager to be employees
+* condense update functions to one
+* View employee by department
+* View employee by manager
+* test
+* README
