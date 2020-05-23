@@ -17,9 +17,11 @@ INSERT INTO role (name, salary, department_id) VALUES
 ("Design Department Manager", 115000, 4);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
-("Helen", "Smith", 4, null),
-("Sam", "Wesley", 2, 1),
-("Adam", "Jones", 8, null),
-("Serena", "Browne", 7, 3);
+("Ron", "Swanson", 1, null),
+("Leslie", "Knope", 2, 1),
+("April", "Ludgate", 7, 5),
+("Andy", "Dwyer", 8, null),
+("Ben", "Wyatt", 4, null),
+("Tom", "Haverford", 3, 5);
 
 

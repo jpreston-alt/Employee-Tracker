@@ -65,21 +65,13 @@ function init() {
 
 // view table method
 QueryClass.prototype.viewTable = function() {
-    let query;
-
-    if (this.table == "employee") {
-        query = this.joinQuery;
-    } else {
-        query = `Select * FROM ${this.table}`;
-    };
-
-    db.query(query, function (err, res) {
-            if (err) throw err;
-            console.log("\n");
-            console.table(res);
-            console.log("\n");
-            init();
-        });
+    db.query(this.joinQuery, function (err, res) {
+        if (err) throw err;
+        console.log("\n");
+        console.table(res);
+        console.log("\n");
+        init();
+    });
 };
 
 // delete method
@@ -198,9 +190,7 @@ employeeQuery.addToTable = function () {
                 if (err) throw err;
 
                 for (var i = 0; i < result.length; i++) {
-                    console.log(nameArr[0], nameArr[1], result[i].first_name, result[i].last_name, result[i].id)
                     if (nameArr[0] == result[i].first_name && nameArr[1] == result[i].last_name) {
-                        console.log("true");
                         params.push(result[i].id)
                     };
                 };
