@@ -13,6 +13,8 @@ let QueryClass = Query.Query;
 init();
 
 function init() {
+    findDeleteVals();
+    findColumnVals();
     inquirer.prompt(questions.toDoQuestion).then(data => {
         switch (data.toDoType) {
             case "View all Employees":
@@ -59,7 +61,6 @@ function init() {
 
 // view table method
 QueryClass.prototype.viewTable = function() {
-    this.findColVals();
     let query;
 
     if (this.table == "employee") {
@@ -79,12 +80,18 @@ QueryClass.prototype.viewTable = function() {
 
 // delete method
 QueryClass.prototype.deleteFromTable = function () {
-    this.findColVals();
     let choices = this.deleteQuestion.choices;
     let type = this.table;
 
     inquirer.prompt(this.deleteQuestion).then(data => {
-        let deleteVal = Object.values(data);
+        let deleteVal;
+        
+        if (this.table === "employee") {
+            let name = Object.values(data)[0];
+            deleteVal = name.split(" ")[0];
+        } else {
+            deleteVal = Object.values(data);
+        };
 
         db.query(`DELETE FROM ${this.table} WHERE ${this.columns[0]}=?;`,[deleteVal], function (err, res) {
             if (err) throw err;
@@ -95,21 +102,21 @@ QueryClass.prototype.deleteFromTable = function () {
                     choices.splice(i, 1);
                 };
             };
-
+            findDeleteVals();
             init();
         });
     });
 };
 
 employeeQuery.updateRole = function() {
-    this.findColVals();
     inquirer.prompt(questions.updateEmpQ).then(data => {
-        const { updateEmployee, updateRole } = data;
+        let { updateEmployee, updateRole } = data;
+        let fullName = updateEmployee.split(" ");
         db.query(`SELECT * FROM role`, function (err, res) {
             if (err) throw err;
             for (var i = 0; i < res.length; i++) {
                 if (updateRole === res[i].name) {
-                    db.query(`UPDATE employee SET role_id=${res[i].id} WHERE first_name="${updateEmployee}";`, function(err, res) {
+                    db.query(`UPDATE employee SET role_id=${res[i].id} WHERE first_name="${fullName[0]}" AND last_name="${fullName[1]}";`, function(err, res) {
                         if (err) throw err;
                         console.log(`\nEmployee Role Updated!\n`)
                         init();
@@ -121,10 +128,10 @@ employeeQuery.updateRole = function() {
 };
 
 employeeQuery.updateManager = function () {
-    this.findColVals();
     inquirer.prompt(questions.updateEmpManager).then(data => {
-        const { updateEmpName, updateEmpManager } = data;
-        db.query(`UPDATE employee SET manager="${updateEmpManager}" WHERE first_name="${updateEmpName}";`, function (err, res) {
+        let { updateEmpName, updateEmpManager } = data;
+        let fullName = updateEmpName.split(" ");
+        db.query(`UPDATE employee SET manager="${updateEmpManager}" WHERE first_name="${fullName[0]}" AND last_name="${fullName[1]}";`, function (err, res) {
             if (err) throw err;
             console.log(`\nEmployee Manager Updated!\n`)
             init();
@@ -145,8 +152,6 @@ QueryClass.prototype.addToTable = function () {
         otherTable = "department";
     };
 
-    this.findColVals();
-
     this.askQuestions().then(data => {
         params.push(Object.values(data)[0]);
         params.push(Object.values(data)[1]);
@@ -164,7 +169,6 @@ QueryClass.prototype.addToTable = function () {
 
             db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
                 if (err) throw err;
-                obj.findColVals();
                 console.log(`\nNew ${table} added!\n`);
                 init();
             });
@@ -174,7 +178,6 @@ QueryClass.prototype.addToTable = function () {
 };
 
 departmentQuery.addToTable = function () {
-    this.findColVals();
     this.askQuestions().then(data => {
         let params = Object.values(data);
         let table = this.table;
@@ -184,4 +187,16 @@ departmentQuery.addToTable = function () {
             init();
         });
     });
+};
+
+function findDeleteVals() {
+    roleQuery.findColVals("name", roleQuery.deleteQuestion.choices);
+    departmentQuery.findColVals("name", departmentQuery.deleteQuestion.choices);
+    employeeQuery.findColVals("first_name, last_name", employeeQuery.deleteQuestion.choices);
+};
+
+function findColumnVals() {
+    roleQuery.findColVals("name", questions.roleArr);
+    departmentQuery.findColVals("name", questions.departmentArr);
+    employeeQuery.findColVals("first_name, last_name", questions.employeeArr);
 };
