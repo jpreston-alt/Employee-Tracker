@@ -51,6 +51,9 @@ function init() {
             case "Update Employee Manager":
                 employeeQuery.updateManager();
                 break;
+            case "View all Employees by Manager":
+                viewByManager();
+                break;
             default:
                 db.end();
         }
@@ -251,6 +254,22 @@ roleQuery.addToTable = function () {
             });
         });
     });
+};
+
+// view employees by manager
+function viewByManager() {
+    db.query(
+        `SELECT CONCAT_WS(" ", m.first_name, m.last_name) AS manager, CONCAT_WS(" ", e.first_name, e.last_name) AS employee
+        FROM employee e
+        INNER JOIN employee m ON m.id = e.manager_id
+        ORDER BY manager;`,
+        function(err, res) {
+            if (err) throw err;
+            console.log("\n");
+            console.table(res);
+            console.log("\n");
+            init();
+        });
 };
 
 // find column values for delete dropdown, call at init
