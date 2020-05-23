@@ -1,8 +1,8 @@
-# [Employee Tracker](https://github.com/jpreston-alt/Employee-Tracker)
+# [Employee Mangement System](https://github.com/jpreston-alt/Employee-Tracker)
 
 ## Description
 
-Employee Tracker is a command-line, Content Management System, that allows business owners to easily manage and track information about their employees. The user is first presented with a series of choices about what action they would like to complete, and then prompted with a series of follow up questions, based on that choice. The user may choose to view, add, or delete employees, roles, and departments. They may also choose to update the employees role or manager at any time. Once the user has answered the follow up questions, their chosen action is completed and they may choose another action, or choose to exit the program at any time.
+Employee Management System is a command-line, Content Management System, that allows business owners to easily manage and track information about their employees. The user is first presented with a series of choices about what action they would like to complete, and then prompted with a series of follow up questions, based on that choice. The user may choose to view, add, or delete employees, roles, and departments. They may also choose to update the employees role or manager at any time. Once the user has answered the follow up questions, their chosen action is completed and they may choose another action, or choose to exit the program at any time.
 
 Building this program taught me alot about building databases with MySQL, and about integrating those databases into a program so that the user can access and manipulate them. I learned how seperating data into different tables, and then using joins to correlate that data, makes it easier update and query data. I also learned how to connect to a mysqld server from the command-line and, how to utilize inquirer to query databases based on user input.
 
@@ -58,7 +58,7 @@ npm install
 * [Inquirer.js](https://www.npmjs.com/package/inquirer)
 
 ## Finished Product
-View a video of the full application [here](https://drive.google.com/file/d/1Tbr3_QlUWGbEfzQtI1TAzgLNuelevxEc/view). <br><br>
+View a video demonstrating the full application [here](https://drive.google.com/file/d/1to-rywQco0bl-7fDBKE7dkzV-utTVTK7/view). <br><br>
 
 <img src="./assets/1.png" alt="table-pic" width="600"/>
 <img src="./assets/3.png" alt="table-pic" width="600"/>
