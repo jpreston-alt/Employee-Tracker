@@ -4,7 +4,7 @@ const Query = require("./lib/Query");
 const questions = require("./lib/Questions");
 const cTable = require("console.table");
 
-// set variables for query/table instances
+// set variables for table instances
 let employeeQuery = Query.employeeQuery;
 let departmentQuery = Query.departmentQuery;
 let roleQuery = Query.roleQuery;
@@ -13,6 +13,7 @@ let QueryClass = Query.Query;
 init();
 
 function init() {
+    // find column values
     findDeleteVals();
     findColumnVals();
     inquirer.prompt(questions.toDoQuestion).then(data => {
@@ -93,29 +94,39 @@ QueryClass.prototype.deleteFromTable = function () {
             deleteVal = Object.values(data);
         };
 
+        // delete from database
         db.query(`DELETE FROM ${this.table} WHERE ${this.columns[0]}=?;`,[deleteVal], function (err, res) {
             if (err) throw err;
             console.log(`\n${type} deleted!\n`);
 
+            // delete from choices array
             for (var i = 0; i < choices.length; i++) {
                 if (choices[i] == deleteVal) {
                     choices.splice(i, 1);
                 };
             };
+
             findDeleteVals();
             init();
         });
     });
 };
 
+// update employee role
 employeeQuery.updateRole = function() {
     inquirer.prompt(questions.updateEmpQ).then(data => {
+
+        // set user response to variables
         let { updateEmployee, updateRole } = data;
         let fullName = updateEmployee.split(" ");
+
+        // query from role table to correlate employee.role_id with role name
         db.query(`SELECT * FROM role`, function (err, res) {
             if (err) throw err;
             for (var i = 0; i < res.length; i++) {
                 if (updateRole === res[i].name) {
+
+                    // update employee role
                     db.query(`UPDATE employee SET role_id=${res[i].id} WHERE first_name="${fullName[0]}" AND last_name="${fullName[1]}";`, function(err, res) {
                         if (err) throw err;
                         console.log(`\nEmployee Role Updated!\n`)
@@ -129,34 +140,45 @@ employeeQuery.updateRole = function() {
 
 employeeQuery.updateManager = function () {
     inquirer.prompt(questions.updateEmpManager).then(data => {
+
+        // set user response to variables - split names
         let { updateEmpName, updateEmpManager } = data;
+        let fullManName = updateEmpManager.split(" ");
         let fullName = updateEmpName.split(" ");
-        db.query(`UPDATE employee SET manager="${updateEmpManager}" WHERE first_name="${fullName[0]}" AND last_name="${fullName[1]}";`, function (err, res) {
+        let managerID;
+
+        // find manager id in employees array
+        db.query(`SELECT * FROM employee`, function(err, result) {
             if (err) throw err;
-            console.log(`\nEmployee Manager Updated!\n`)
-            init();
+
+            for (var i = 0; i < result.length; i++) {
+                if (fullManName[0] == result[i].first_name && fullManName[1] == result[i].last_name) {
+                    managerID = result[i].id;
+                };
+            };
+
+            // update based on manager id
+            db.query(`UPDATE employee SET manager_id=${managerID} WHERE first_name="${fullName[0]}" AND last_name="${fullName[1]}";`, function (err, res) {
+                if (err) throw err;
+                console.log(`\nEmployee Manager Updated!\n`)
+                init();
+            });
         });
     });
 };
 
-QueryClass.prototype.addToTable = function () {
+// employee add to table
+employeeQuery.addToTable = function () {
     let table = this.table;
     let columns = this.columns;
     let params = [];
-    let obj = this;
-    let otherTable;
-
-    if (table === "employee") {
-        otherTable = "role";
-    } else if (table === "role") {
-        otherTable = "department";
-    };
 
     this.askQuestions().then(data => {
         params.push(Object.values(data)[0]);
         params.push(Object.values(data)[1]);
 
-        db.query(`SELECT * FROM ${otherTable}`, function (err, res) {
+        // find role name from role table, based on employee.role_id
+        db.query(`SELECT * FROM role`, function (err, res) {
             if (err) throw err;
 
             for (var i = 0; i < res.length; i++) {
@@ -165,14 +187,28 @@ QueryClass.prototype.addToTable = function () {
                 };
             };
 
-            if (table === "employee") {params.push(Object.values(data)[3])};
+            let managerName = Object.values(data)[3]
+            let nameArr = managerName.split(" ");
 
-            db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
+            // find manager name from employee table based on employee.manager_id
+            db.query(`SELECT * FROM employee`, function(err, result) {
                 if (err) throw err;
-                console.log(`\nNew ${table} added!\n`);
-                init();
-            });
 
+                for (var i = 0; i < result.length; i++) {
+                    console.log(nameArr[0], nameArr[1], result[i].first_name, result[i].last_name, result[i].id)
+                    if (nameArr[0] == result[i].first_name && nameArr[1] == result[i].last_name) {
+                        console.log("true");
+                        params.push(result[i].id)
+                    };
+                };
+
+                // insert values into table
+                db.query(`INSERT INTO ${table} (${columns}) VALUES (?);`, [params], function (err, res) {
+                    if (err) throw err;
+                    console.log(`\nNew ${table} added!\n`);
+                    init();
+                });
+            });
         });
     });
 };
@@ -189,12 +225,42 @@ departmentQuery.addToTable = function () {
     });
 };
 
+roleQuery.addToTable = function () {
+    let columns = this.columns;
+    let params = [];
+
+    this.askQuestions().then(data => {
+        params.push(Object.values(data)[0]);
+        params.push(Object.values(data)[1]);
+
+        // find department name from department table, based on role.department_id
+        db.query(`SELECT * FROM department`, function (err, res) {
+            if (err) throw err;
+
+            for (var i = 0; i < res.length; i++) {
+                if (Object.values(data)[2] == res[i].name) {
+                    params.push(res[i].id);
+                };
+            };
+
+            // insert new role into role table
+            db.query(`INSERT INTO role (${columns}) VALUES (?);`, [params], function (err, res) {
+                if (err) throw err;
+                console.log(`\nNew role added!\n`);
+                init();
+            });
+        });
+    });
+};
+
+// find column values for delete dropdown, call at init
 function findDeleteVals() {
     roleQuery.findColVals("name", roleQuery.deleteQuestion.choices);
     departmentQuery.findColVals("name", departmentQuery.deleteQuestion.choices);
     employeeQuery.findColVals("first_name, last_name", employeeQuery.deleteQuestion.choices);
 };
 
+// find column values for dropdown, call at init
 function findColumnVals() {
     roleQuery.findColVals("name", questions.roleArr);
     departmentQuery.findColVals("name", questions.departmentArr);
